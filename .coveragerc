@@ -1,0 +1,16 @@
+[paths]
+source =
+   src/sync_google_spreadsheet
+   */site-packages/sync_google_spreadsheet
+
+[run]
+branch = true
+source =
+    sync_google_spreadsheet
+    tests
+parallel = true
+
+[report]
+show_missing = true
+precision = 2
+omit = *migrations*
