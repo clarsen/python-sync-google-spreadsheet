@@ -71,6 +71,16 @@ Installation
 
     pip install sync-google-spreadsheet
 
+
+Examples
+========
+::
+
+    1. pip install gspread oauth2client pandas beddit-python selenium PyYAML
+    2. Download ```chromedriver``` for your system [from here](https://sites.google.com/a/chromium.org/chromedriver/downloads). And put it in ```./assets``` folder.
+    3. python examples/update_beddit.py
+
+
 Documentation
 =============
 
