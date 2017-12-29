@@ -16,11 +16,11 @@ import sync_google_spreadsheet.sheet_adapter
 
 
 class SleepSheet(sync_google_spreadsheet.sheet_adapter.SheetAdapter):
-    def __init__(self, sheet, range, rows, columns,
+    def __init__(self, sheet, cellrange, rows, columns,
                  column_for_key, column_for_value):
         self.columns = columns
         self.rows = rows
-        self.range = range
+        self.range = cellrange
         self.value_cell_for_key = {}
         self.column_for_key = column_for_key
         self.column_for_value = column_for_value
@@ -192,7 +192,8 @@ def test():
 
 
 def init_common():
-    secrets = yaml.load(file(os.path.expanduser("~/.secrets.yaml")))
+    with open(os.path.expanduser("~/.secrets.yaml"), "r") as f:
+        secrets = yaml.load(f)
     print(secrets)
     SCOPE = ["https://spreadsheets.google.com/feeds"]
     SECRETS_FILE = os.path.expanduser(secrets['sheet']['secrets_file'])
