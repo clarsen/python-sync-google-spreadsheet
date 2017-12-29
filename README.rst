@@ -78,10 +78,20 @@ Examples
 Download ``chromedriver`` for your system `from here <https://sites.google.com/a/chromium.org/chromedriver/downloads>`_.
 And put it in ``./assets`` folder.
 
+Update spreadsheet of sleep tracking data from Beddit and Resmed (myAir)
+------
 ::
 
     pip install gspread oauth2client pandas beddit-python selenium PyYAML
     python examples/update_beddit.py
+
+Update and append to spreadsheet of exercise data from Peloton
+-------
+::
+
+    pip install gspread oauth2client pandas selenium PyYAML
+    rm -rf tmp; mkdir tmp
+    python examples/update_peloton.py
 
 
 Documentation
