@@ -74,11 +74,14 @@ Installation
 
 Examples
 ========
+
+Download ``chromedriver`` for your system `from here <https://sites.google.com/a/chromium.org/chromedriver/downloads>`_.
+And put it in ``./assets`` folder.
+
 ::
 
-    1. pip install gspread oauth2client pandas beddit-python selenium PyYAML
-    2. Download ```chromedriver``` for your system [from here](https://sites.google.com/a/chromium.org/chromedriver/downloads). And put it in ```./assets``` folder.
-    3. python examples/update_beddit.py
+    pip install gspread oauth2client pandas beddit-python selenium PyYAML
+    python examples/update_beddit.py
 
 
 Documentation
