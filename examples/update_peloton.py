@@ -83,13 +83,14 @@ def update_peloton(secrets):
     chrome_options.add_argument('--lang=en-US')
     chrome_options.add_argument('--disable-setuid-sandbox')
 
-    # Headless chrome doesn't seem to work with this site.
-    # chrome_options.add_argument('--headless')
-    # chrome_options.add_argument("--window-size=1920x1080")
-    # # Replaces browser User Agent from "HeadlessChrome".
-    # user_agent = "Chrome"
-    # chrome_options.add_argument('--user-agent={user_agent}'
-    #                             .format(user_agent=user_agent))
+    # with headless chrome, doesn't seem to be able to trigger the download
+    if False:
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument("--window-size=1920x1080")
+        # Replaces browser User Agent from "HeadlessChrome".
+        user_agent = "Chrome"
+        chrome_options.add_argument('--user-agent="{user_agent}"'
+                                    .format(user_agent=user_agent))
     chrome_prefs = {
         'intl.accept_languages': 'en-US',
         'download.default_directory': './tmp',

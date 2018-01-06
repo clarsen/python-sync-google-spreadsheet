@@ -138,9 +138,17 @@ def update_resmed(secrets, sheet):
     ActionChains(browser).move_to_element(usage_button).click().perform()
 
     usage_scores = browser.execute_script("return myScores;")
+
+    curmonth = datetime.now().month
+    curyear = datetime.now().year
     for day in usage_scores:
-        # XXX: data from site doesn't have year.
-        ts = pd.Timestamp("%s 2017" % day['Date'], tz="America/Los_Angeles")
+        # data from site doesn't have year.
+        if day['MonthName'] == 'December' and curmonth == 1:
+            year = curyear - 1
+        else:
+            year = curyear
+        ts = pd.Timestamp("{} {}".format(day['Date'], year),
+                          tz="America/Los_Angeles")
         resmed_dur = day['UsageDisplay']
         print("{} -> {}".format(ts, resmed_dur))
         if rs.exists(ts):
