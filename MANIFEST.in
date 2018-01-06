@@ -3,6 +3,7 @@ graft src
 graft ci
 graft tests
 recursive-include examples *.py
+recursive-include assets *.md
 
 include .bumpversion.cfg
 include .coveragerc
