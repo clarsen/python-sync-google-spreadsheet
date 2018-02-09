@@ -91,12 +91,14 @@ class SheetAdapter(object):
             self.cell_at(row, col).value = kvhash[key]
         self.next_empty_row += 1
 
-    def update_row(self, idx, kvhash):
-        # type: (int, Dict[str,Any]) -> None
+    def update_row(self, idx, kvhash, cols_to_update):
+        # type: (int, Dict[str,Any], List[str]) -> None
         """
         Update row using dictionary to fill in updated values
         """
-        pass
+        for key in cols_to_update:
+            col = self.column_name_to_column[key]
+            self.cell_at(idx, col).value = kvhash[key]
 
     def has(self, kvhash):
         # type: (Dict[str, Any]) -> bool

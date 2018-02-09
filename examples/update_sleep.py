@@ -15,59 +15,39 @@ from selenium.webdriver.common.action_chains import ActionChains
 import sync_google_spreadsheet.sheet_adapter
 
 
-class SleepSheet(sync_google_spreadsheet.sheet_adapter.SheetAdapter):
-    def __init__(self, sheet, cellrange, rows, columns,
-                 column_for_key, column_for_value):
-        self.columns = columns
-        self.rows = rows
-        self.range = cellrange
-        self.value_cell_for_key = {}
-        self.column_for_key = column_for_key
-        self.column_for_value = column_for_value
-        super(SleepSheet, self).__init__(sheet)
+class SleepSheet_resmed(sync_google_spreadsheet.sheet_adapter.SheetAdapter):
+    def __init__(self, sheet):
 
-    def load(self):
-        self.cell_list = self.sheet.range(self.range)
-        for row in range(1, self.rows):
-            key = pd.Timestamp(self.cell_at(row, self.column_for_key).value,
-                               tz='America/Los_Angeles')
-            self.value_cell_for_key[key] \
-                = self.cell_at(row, self.column_for_value)
+        def rowkey(row):
+            datestr = row['Going to sleep at']
+            ts = pd.Timestamp(datestr,
+                              tz='America/Los_Angeles')
 
-    def cell_at(self, row, col):
-        return self.cell_list[self.columns * row + col]
+            return ts
 
-    def exists(self, key):
-        return key in self.value_cell_for_key
-
-    def value(self, key):
-        return self.value_cell_for_key[key].value
-
-    def update(self, key, value):
-        self.value_cell_for_key[key].value = value
-
-    def sync(self):
-        self.sheet.update_cells(self.cell_list)
+        super(SleepSheet_resmed, self).__init__(sheet, 1,
+                                                rowkey,
+                                                non_empty_column='Going to sleep at',
+                                                )
 
 
-class BedditSheet(SleepSheet):
-    def __init__(self, sheet, cellrange, rows, columns):
-        super(BedditSheet, self).__init__(sheet, cellrange,
-                                          rows, columns, 1, 5)
+class SleepSheet_beddit(sync_google_spreadsheet.sheet_adapter.SheetAdapter):
+    def __init__(self, sheet):
 
+        def rowkey(row):
+            datestr = row['Waking up']
+            ts = pd.Timestamp(datestr,
+                              tz='America/Los_Angeles')
 
-class ResmedSheet(SleepSheet):
-    def __init__(self, sheet, cellrange, rows, columns):
-        super(ResmedSheet, self).__init__(sheet, cellrange,
-                                          rows, columns, 0, 6)
+            return ts
+
+        super(SleepSheet_beddit, self).__init__(sheet, 1,
+                                                rowkey,
+                                                non_empty_column='Waking up'
+                                                )
 
 
 def update_resmed(secrets, sheet):
-    rs = ResmedSheet(sheet, secrets['sheet']['range'],
-                     secrets['sheet']['rows'],
-                     secrets['sheet']['columns'])
-    rs.load()
-
     username = secrets['resmed']['user']
     password = secrets['resmed']['password']
     page_delay = 25
@@ -79,13 +59,13 @@ def update_resmed(secrets, sheet):
     chrome_options.add_argument('--lang=en-US')
     chrome_options.add_argument('--disable-setuid-sandbox')
 
-    # Headless chrome doesn't seem to work with this site.
-    # chrome_options.add_argument('--headless')
-    # chrome_options.add_argument("--window-size=1920x1080")
-    # # Replaces browser User Agent from "HeadlessChrome".
-    # user_agent = "Chrome"
-    # chrome_options.add_argument('--user-agent={user_agent}'
-    #                             .format(user_agent=user_agent))
+    # Headless chrome does work when user agent set properly
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument("--window-size=1200x1080")
+    # Replaces browser User Agent from "HeadlessChrome".
+    user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36"
+    chrome_options.add_argument('--user-agent={user_agent}'
+                                .format(user_agent=user_agent))
     chrome_prefs = {
         'intl.accept_languages': 'en-US'
     }
@@ -139,53 +119,73 @@ def update_resmed(secrets, sheet):
 
     usage_scores = browser.execute_script("return myScores;")
 
-    curmonth = datetime.now().month
-    curyear = datetime.now().year
-    for day in usage_scores:
-        # data from site doesn't have year.
-        if day['MonthName'] == 'December' and curmonth == 1:
-            year = curyear - 1
-        else:
-            year = curyear
-        ts = pd.Timestamp("{} {}".format(day['Date'], year),
-                          tz="America/Los_Angeles")
-        resmed_dur = day['UsageDisplay']
-        print("{} -> {}".format(ts, resmed_dur))
-        if rs.exists(ts):
-            if rs.value(ts) != resmed_dur:
-                print("would update", ts)
-                rs.update(ts, resmed_dur)
+    def sleep_streamer():
+        curmonth = datetime.now().month
+        curyear = datetime.now().year
+        for day in usage_scores:
+            # data from site doesn't have year.
+            if day['MonthName'] == 'December' and curmonth == 1:
+                year = curyear - 1
+            else:
+                year = curyear
+            ts = pd.Timestamp("{} {}".format(day['Date'], year),
+                              tz="America/Los_Angeles")
+            resmed_dur = day['UsageDisplay']
+            print("{} -> {}".format(ts, resmed_dur))
+            yield {
+                'Going to sleep at': ts,
+                'myAir duration': resmed_dur,
+                }
+
+    rs = SleepSheet_resmed(sheet)
+    rs.load()
+
+    for row in sleep_streamer():
+        if rs.has(row):
+            idx = rs.row_for_kvhash(row)
+            if rs.row(idx)['myAir duration'] != row['myAir duration']:
+                rs.update_row(idx, row, ['myAir duration'])
             else:
                 print("already matches")
+        else:
+            print("not found")
+
     rs.sync()
 
 
 def update_beddit(secrets, sheet):
-    bs = BedditSheet(sheet, secrets['sheet']['range'],
-                     secrets['sheet']['rows'],
-                     secrets['sheet']['columns'])
-    bs.load()
     client = BedditClient(secrets['beddit']['user'],
                           secrets['beddit']['password'])
     start_date = datetime.strptime(secrets['beddit']['start_date'], "%m/%d/%Y")
     end_date = datetime.strptime(secrets['beddit']['end_date'], "%m/%d/%Y")
-
     sleeps = client.get_sleeps(start=start_date, end=end_date)
-    for sleep in sleeps:
-        # print(sleep.date.strftime('%Y-%m-%d'), sleep.property.total_sleep_score)
-        beddit_dur = "{}:{:02d}".format(
-          sleep.property.primary_sleep_period_total_sleep_duration / 3600,
-          (sleep.property.primary_sleep_period_total_sleep_duration % 3600)/60)
 
-        print(sleep.date.strftime('%Y-%m-%d'), beddit_dur)
-        ts = pd.Timestamp(sleep.date.strftime('%Y-%m-%d'),
-                          tz='America/Los_Angeles')
-        if bs.exists(ts):
-            if bs.value(ts) != beddit_dur:
-                print("would update", ts)
-                bs.update(ts, beddit_dur)
+    def sleep_streamer():
+        for sleep in sleeps:
+            ts = pd.Timestamp(sleep.date.strftime('%Y-%m-%d'),
+                              tz='America/Los_Angeles')
+            beddit_dur = "{}:{:02d}".format(
+                sleep.property.primary_sleep_period_total_sleep_duration / 3600,
+                (sleep.property.primary_sleep_period_total_sleep_duration % 3600)/60)
+            row = {
+                'Waking up': ts,
+                'beddit duration': beddit_dur
+            }
+            print(row)
+            yield row
+
+    bs = SleepSheet_beddit(sheet)
+    bs.load()
+
+    for row in sleep_streamer():
+        if bs.has(row):
+            idx = bs.row_for_kvhash(row)
+            if bs.row(idx)['beddit duration'] != row['beddit duration']:
+                bs.update_row(idx, row, ['beddit duration'])
             else:
                 print("already matches")
+        else:
+            print("not found")
     bs.sync()
 
 
@@ -202,7 +202,6 @@ def test():
 def init_common():
     with open(os.path.expanduser("~/.secrets.yaml"), "r") as f:
         secrets = yaml.load(f)
-    print(secrets)
     SCOPE = ["https://spreadsheets.google.com/feeds"]
     SECRETS_FILE = os.path.expanduser(secrets['sheet']['secrets_file'])
     SPREADSHEET = secrets['sheet']['name']
