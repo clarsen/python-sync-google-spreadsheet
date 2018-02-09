@@ -94,6 +94,17 @@ Update and append to spreadsheet of exercise data from Peloton
     python examples/update_peloton.py
 
 
+Update and append to spreadsheet of finance data from Schwab and Chase credit card data
+---------------------------------------------------------------------------------------
+This currently doesn't use selenium to scrape site and download.
+
+::
+
+  pip install gspread oauth2client PyYAML
+  rm -rf tmp; mkdir tmp
+  # download csv export of transaction data to tmp
+  python examples/update_finance.py
+
 Documentation
 =============
 
