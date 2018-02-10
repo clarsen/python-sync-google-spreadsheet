@@ -37,7 +37,7 @@ Overview
     :target: https://landscape.io/github/clarsen/python-sync-google-spreadsheet/master
     :alt: Code Quality Status
 
-.. |version| image:: https://img.shields.io/pypi/v/sync-google-spreadsheet.svg
+.. .. |version| image:: https://img.shields.io/pypi/v/sync-google-spreadsheet.svg
     :alt: PyPI Package latest release
     :target: https://pypi.python.org/pypi/sync-google-spreadsheet
 
@@ -45,15 +45,15 @@ Overview
     :alt: Commits since latest release
     :target: https://github.com/clarsen/python-sync-google-spreadsheet/compare/v0.0.1...master
 
-.. |wheel| image:: https://img.shields.io/pypi/wheel/sync-google-spreadsheet.svg
+.. .. |wheel| image:: https://img.shields.io/pypi/wheel/sync-google-spreadsheet.svg
     :alt: PyPI Wheel
     :target: https://pypi.python.org/pypi/sync-google-spreadsheet
 
-.. |supported-versions| image:: https://img.shields.io/pypi/pyversions/sync-google-spreadsheet.svg
+.. .. |supported-versions| image:: https://img.shields.io/pypi/pyversions/sync-google-spreadsheet.svg
     :alt: Supported versions
     :target: https://pypi.python.org/pypi/sync-google-spreadsheet
 
-.. |supported-implementations| image:: https://img.shields.io/pypi/implementation/sync-google-spreadsheet.svg
+.. .. |supported-implementations| image:: https://img.shields.io/pypi/implementation/sync-google-spreadsheet.svg
     :alt: Supported implementations
     :target: https://pypi.python.org/pypi/sync-google-spreadsheet
 
