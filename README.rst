@@ -13,7 +13,7 @@ Overview
       - | |travis| |requires|
         | |codecov|
         | |landscape|
-    * - package
+..    * - package
       - | |version| |wheel| |supported-versions| |supported-implementations|
         | |commits-since|
 
@@ -41,7 +41,7 @@ Overview
     :alt: PyPI Package latest release
     :target: https://pypi.python.org/pypi/sync-google-spreadsheet
 
-.. |commits-since| image:: https://img.shields.io/github/commits-since/clarsen/python-sync-google-spreadsheet/v0.0.1.svg
+.. .. |commits-since| image:: https://img.shields.io/github/commits-since/clarsen/python-sync-google-spreadsheet/v0.0.1.svg
     :alt: Commits since latest release
     :target: https://github.com/clarsen/python-sync-google-spreadsheet/compare/v0.0.1...master
 
