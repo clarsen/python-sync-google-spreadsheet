@@ -133,3 +133,10 @@ Note, to combine the coverage data from all the tox environments run:
       - ::
 
             PYTEST_ADDOPTS=--cov-append tox
+
+Known issues
+============
+
+Sometimes there are two transactions on the same day from the same vendor for
+the same amount.  The sheet adapter doesn't handle the key uniqueness check in
+that case for the example update_finance script.

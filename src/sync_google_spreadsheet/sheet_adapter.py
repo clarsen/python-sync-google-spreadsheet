@@ -58,7 +58,7 @@ class SheetAdapter(object):
                 raise Exception("Must specify non_empty_column")
             key = self.row_to_key(self.row_as_dict(row))
             if key in self.row_for_key:
-                raise Exception("Key must be unique")
+                raise Exception("Key %s must be unique" % key)
             self.row_for_key[key] = row
         if self.next_empty_row is None:
             self.next_empty_row = self.rows + 1
